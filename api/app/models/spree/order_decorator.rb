@@ -51,7 +51,7 @@ Spree::Order.class_eval do
 
   def self.ensure_variant_id_from_api(hash)
     unless hash[:variant_id]
-      hash[:variant_id] = Spree::Variant.find_by_sku(hash.delete(:sku)).id
+      hash[:variant_id] = Spree::Variant.find_by_sku!(hash.delete(:sku)).id
     end
   end
 
