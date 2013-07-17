@@ -101,5 +101,16 @@ module Spree
       shipment.adjustment.amount.should eq 4.99
       shipment.adjustment.should be_locked
     end
+
+    it 'adds adjustments' do
+      params = { :adjustments_attributes => [
+          { "label" => "Shipping Discount", "amount" => "-4.99" },
+          { "label" => "Promotion Discount", "amount" => "-3.00" }] }
+
+      order = Order.build_from_api(user, params)
+      order.adjustments.all?(&:locked).should be_true
+      order.adjustments.first.label.should eq 'Shipping Discount'
+      order.adjustments.first.amount.should eq -4.99
+    end
   end
 end

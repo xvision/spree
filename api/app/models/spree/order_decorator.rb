@@ -2,6 +2,7 @@ Spree::Order.class_eval do
   def self.build_from_api(user, params)
     line_items = params.delete(:line_items_attributes) || {}
     shipments = params.delete(:shipments_attributes) || []
+    adjustments = params.delete(:adjustments_attributes) || []
 
     ensure_country_id_from_api params[:ship_address_attributes]
     ensure_state_id_from_api params[:ship_address_attributes]
@@ -13,6 +14,7 @@ Spree::Order.class_eval do
 
     order.create_shipments_from_api(shipments)
     order.create_line_items_from_api(line_items)
+    order.create_adjustments_from_api(adjustments)
 
     order.save!
     order
@@ -46,6 +48,14 @@ Spree::Order.class_eval do
       line_item = line_items_hash[k]
       self.class.ensure_variant_id_from_api(line_item)
       self.add_variant(Spree::Variant.find(line_item[:variant_id]), line_item[:quantity])
+    end
+  end
+
+  def create_adjustments_from_api(adjustments)
+    adjustments.each do |adjustment|
+      adjustment = self.adjustments.build(:amount => adjustment['amount'].to_f,
+                                          :label => adjustment['label'])
+      adjustment.locked = true
     end
   end
 
