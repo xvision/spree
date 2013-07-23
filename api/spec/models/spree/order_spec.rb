@@ -11,6 +11,7 @@ module Spree
     let(:variant_id) { product.master.id }
     let(:line_items) {{ "0" => { :variant_id => variant.id, :quantity => 5 }}}
     let(:shipping_method) { create(:shipping_method) }
+    let(:payment_method) { create(:payment_method) }
     let(:ship_address) {{
        :address1 => '123 Testable Way',
        :firstname => 'Fox',
@@ -111,6 +112,13 @@ module Spree
       order.adjustments.all?(&:locked).should be_true
       order.adjustments.first.label.should eq 'Shipping Discount'
       order.adjustments.first.amount.should eq -4.99
+    end
+
+    it 'builds a payment' do
+      params = { :payments_attributes => [{ amount: '4.99',
+                                            payment_method: payment_method.name }] }
+      order = Order.build_from_api(user, params)
+      order.payments.first.amount.should eq 4.99
     end
   end
 end
