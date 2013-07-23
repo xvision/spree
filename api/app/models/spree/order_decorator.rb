@@ -49,6 +49,7 @@ Spree::Order.class_eval do
     payments_hash.each do |p|
       payment = payments.build
       payment.amount = p[:amount].to_f
+      payment.state = p.fetch(:state, 'completed')
       payment.payment_method = Spree::PaymentMethod.find_by_name!(p[:payment_method])
       payment.save!
     end
